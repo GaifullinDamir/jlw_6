@@ -7,10 +7,10 @@ class Test {
     static int count;
     public static void main(String[] args){
         count = 0;
-        Balls balls = new Balls();
+        App app = new App();
     }
 }
-class Balls extends Frame implements Observer, ActionListener, ItemListener {
+class App extends Frame implements Observer, ActionListener, ItemListener {
     private LinkedList FigureList = new LinkedList();
     private Color color;
     private Frame controlWindow;
@@ -26,7 +26,7 @@ class Balls extends Frame implements Observer, ActionListener, ItemListener {
     private TextField tfNumFigure;
     private TextField tfNewNumFigure;
     private TextField tfCurrSpeed;
-    Balls(){
+    App(){
         this.addWindowListener(new WindowAdapter2());
         controlWindow = new Frame();
         controlWindow.setSize(new Dimension(1200,300));
@@ -56,10 +56,6 @@ class Balls extends Frame implements Observer, ActionListener, ItemListener {
         createBtn.addActionListener(this);
         controlWindow.add(createBtn, new Point(20,20));
 
-        choiceFigure = new Choice();
-        choiceFigure.addItemListener(this);
-        controlWindow.add(choiceFigure, new Point(60,20));
-
         tfNewNumFigure = new TextField();
         tfNewNumFigure.setText("новый номер фигуры");
         controlWindow.add(tfNewNumFigure);
@@ -74,7 +70,7 @@ class Balls extends Frame implements Observer, ActionListener, ItemListener {
         tfCurrSpeed.setText("новая скорость");
         controlWindow.add(tfCurrSpeed);
 
-        updateSpeedBtn = new Button("Изменить номер фигуры");
+        updateSpeedBtn = new Button("Изменить скорость фигуры");
         updateSpeedBtn.setSize(new Dimension(10,40));
         updateSpeedBtn.setActionCommand("UPDATESPEED");
         updateSpeedBtn.addActionListener(this);
@@ -87,8 +83,6 @@ class Balls extends Frame implements Observer, ActionListener, ItemListener {
         this.setLocation(100, 150);
     }
     public void update(Observable o, Object arg) {
-//        Figure ball = (Figure)arg;
-//        System.out.println ("x= " + ball.thr.getName() + ball.x);
         repaint();
     }
     public void paint (Graphics g) {
@@ -98,21 +92,21 @@ class Balls extends Frame implements Observer, ActionListener, ItemListener {
                 g.setColor(figure.col);
                 switch(figure.figure) {
                     case "круг":
-                        g.fillOval(figure.x, figure.y, 20, 20);
+                        g.fillOval(figure.x, figure.y, 40, 40);
                         break;
                     case "овал":
-                        g.fillOval(figure.x, figure.y, 20, 40);
+                        g.fillOval(figure.x, figure.y, 40, 20);
                         break;
                     case "треугольник":
-                        int[] xPoints = {figure.x,figure.x-10,figure.x+10};
-                        int[] yPoints = {figure.y,figure.y+20,figure.y + 20};
+                        int[] xPoints = {figure.x,figure.x-20,figure.x+20};
+                        int[] yPoints = {figure.y,figure.y+40,figure.y + 40};
                         g.fillPolygon(xPoints,yPoints,3);
                         break;
                     case "квадрат":
-                        g.fillRect(figure.x, figure.y, 20, 20);
+                        g.fillRect(figure.x, figure.y, 40, 40);
                         break;
                     case "прямоугольник":
-                        g.fillRect(figure.x, figure.y, 20, 40);
+                        g.fillRect(figure.x, figure.y, 40, 80);
                         break;
                     default:
                         return;
@@ -142,10 +136,9 @@ class Balls extends Frame implements Observer, ActionListener, ItemListener {
                     return;
                 }
             }
-            Figure figure = new Figure(color, numFigure, startSpeed, tfFigure.getText());
+            Figure figure = new Figure(color, numFigure, startSpeed, tfFigure.getText(), this);
             FigureList.add(figure);
             figure.addObserver(this);
-//            choiceFigure.addItem(Integer.toString(figure.num));
         }
         else if(str.equals("UPDATENUM")) {
             int newNum;
@@ -165,8 +158,6 @@ class Balls extends Frame implements Observer, ActionListener, ItemListener {
             for (Object fig: FigureList) {
                 Figure figure = (Figure)fig;
                 if(figure.num == Integer.parseInt(tfNumFigure.getText())) {
-//                    choiceFigure.remove(Integer.toString(figure.num));
-//                    choiceFigure.addItem(Integer.toString(newNum));
                     figure.num = newNum;
                 }
             }
@@ -199,22 +190,38 @@ class Figure extends Observable implements Runnable {
     int speed;
     Color col;
     String figure;
-    public Figure (Color col, int num, int speed, String figure) {
+
+    App _app = null;
+    public Figure (Color col, int num, int speed, String figure, App app) {
         this.figure = figure;
         this.speed = speed;
         this.num = num;
         xplus = true; yplus = true;
         x = 0; y = 30;
         this.col = col;
+        this._app = app;
         Test.count++;
         thr = new Thread(this);
         thr.start();
     }
     public void run(){
+//        while (true){
+//            if(x>=475) xplus = false;
+//            if(x<=-1) xplus = true;
+//            if(y>=175) yplus = false;
+//            if(y<=29) yplus = true;
+//            if(xplus) x+=speed; else x-=speed;
+//            if(yplus) y+=speed; else y-=speed;
+//            setChanged();
+//            notifyObservers (this);
+//            try{Thread.sleep (1);}
+//            catch (InterruptedException e){}
+//        }
+
         while (true){
-            if(x>=475) xplus = false;
+            if(x>=_app.getSize().width - 20) xplus = false;
             if(x<=-1) xplus = true;
-            if(y>=175) yplus = false;
+            if(y>=_app.getSize().height - 20) yplus = false;
             if(y<=29) yplus = true;
             if(xplus) x+=speed; else x-=speed;
             if(yplus) y+=speed; else y-=speed;
