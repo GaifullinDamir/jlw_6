@@ -3,6 +3,7 @@ import java.util.*;
 import java.util.LinkedList;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.Random;
 class Test {
     static int count;
     public static void main(String[] args){
@@ -35,10 +36,12 @@ class App extends Frame implements Observer, ActionListener, ItemListener {
         controlWindow.addWindowListener(new WindowAdapter2());
 
         choiceColor = new JColorChooser();
-        controlWindow.add(choiceColor, new Point(60,20));
+        choiceColor.setSize(new Dimension(20,50));
+        controlWindow.add(choiceColor, new Point(0,20));
 
 
         tfFigure = new TextField();
+        tfFigure.setSize(new Dimension(20,50));
         tfFigure.setText("форма фигуры");
         controlWindow.add(tfFigure);
 
@@ -51,7 +54,7 @@ class App extends Frame implements Observer, ActionListener, ItemListener {
         controlWindow.add(tfNumFigure);
 
         createBtn = new Button("Создать");
-        createBtn.setSize(new Dimension(10,40));
+        createBtn.setSize(10, 10);
         createBtn.setActionCommand("OK");
         createBtn.addActionListener(this);
         controlWindow.add(createBtn, new Point(20,20));
@@ -188,13 +191,22 @@ class Figure extends Observable implements Runnable {
     int y;
     int num;
     int speed;
+
+    double x_inc;
+    double y_inc;
+
+
     Color col;
     String figure;
 
     App _app = null;
     public Figure (Color col, int num, int speed, String figure, App app) {
+
+        Random random = new Random();
         this.figure = figure;
         this.speed = speed;
+        this.x_inc = random.nextInt(3) + 1;
+        this.y_inc = random.nextInt(3) + 1;
         this.num = num;
         xplus = true; yplus = true;
         x = 0; y = 30;
@@ -205,29 +217,21 @@ class Figure extends Observable implements Runnable {
         thr.start();
     }
     public void run(){
-//        while (true){
-//            if(x>=475) xplus = false;
-//            if(x<=-1) xplus = true;
-//            if(y>=175) yplus = false;
-//            if(y<=29) yplus = true;
-//            if(xplus) x+=speed; else x-=speed;
-//            if(yplus) y+=speed; else y-=speed;
-//            setChanged();
-//            notifyObservers (this);
-//            try{Thread.sleep (1);}
-//            catch (InterruptedException e){}
-//        }
 
         while (true){
             if(x>=_app.getSize().width - 20) xplus = false;
             if(x<=-1) xplus = true;
             if(y>=_app.getSize().height - 20) yplus = false;
             if(y<=29) yplus = true;
-            if(xplus) x+=speed; else x-=speed;
-            if(yplus) y+=speed; else y-=speed;
+
+            if(xplus) x+= (x_inc); else x-=(x_inc);
+            if(yplus) y+=( y_inc); else y-=(y_inc);
+
+
+
             setChanged();
             notifyObservers (this);
-            try{Thread.sleep (1);}
+            try{Thread.sleep (speed);}
             catch (InterruptedException e){}
         }
     }
